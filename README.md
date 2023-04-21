@@ -1,2 +1,4 @@
-# pbdupes
-Find duplicate files
+# pbdupes 2023/4
+This program find duplicates files
+
+
