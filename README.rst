@@ -18,6 +18,9 @@ Features are::
  HASH: MD5 ord SHA1
  FULL or HASH-DEPTH = multiple of 4096.
 
+ The filname in the New folder is changed in "Old-Path + File-Name"
+
+
 --------
 
 Parameters are::
@@ -38,11 +41,11 @@ Parameters are::
 
 Example::
 
- Example Linux           :  pbdupes -MOVE-FAST-SHA1-HASH '.' '*' New_Path 100
+ Example Linux           :  pbdupes -MOVE-FAST-SHA1-HASH '.' '*' DUP_Path 100
  Example Linux           :  pbdupes -SHOW-FAST-MD5-HASH '.' '*.pas' 100 >dup_list
  
  Example Windows or other:  pbdupes -MOVE-FAST-SHA1-HASH . * 100 >dup_list
- Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH "c:\Program Files" * New_Path 100
+ Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH "c:\Program Files" * DUP_Path 100
 
 --------
 
