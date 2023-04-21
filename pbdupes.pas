@@ -749,7 +749,7 @@ begin
 	writeln;
 	
 	//pFilesFound.CalcFullHash;
-	pFilesFound.CalcFullSHA1Hash;
+	pFilesFound.CalcFullMD5Hash;
 	pFilesFound.DupFilesFindHash(TRUE);
 	
 	writeln;
