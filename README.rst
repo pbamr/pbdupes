@@ -1,3 +1,36 @@
+
+pbdupes 2023/4
+===============
+
+Program finds duplicates files.
+-----------
+
+
+
+
+
+
+
+
+
+
+Program : pbdupes 2023/4, Finds duplicates. No delete, move only, Developer : Peter Boettcher, Germany/NRW, Muelheim Ruhr, peter.boettcher@gmx.net,
+Development : FreePascal, FreePascal Project : www.freepascal.org, Packages, runtime library : modified LGPL, www.gnu.org, Special Thanks : Niklaus Wirth, Florian Klaempfl and others
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Many thanks to Mikos Szeredi and all the many others.
 
 Extension for the orphaned PROJECT SSHFS 
