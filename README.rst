@@ -50,6 +50,7 @@ Compile::
 
  fpc pbdupes.pas
 
+ You can compile the program under all OS and architectures which support FreePascal.
 
 --------
 
