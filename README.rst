@@ -5,6 +5,28 @@ pbdupes 2023/4
 Program finds duplicates files.
 -----------
 
+Features are::
+
+ SHOW-...   Display all programs with the same HASH
+ MOVE-...   MOVE ONLY, NOT DELETE
+
+ The first identical existing "FILE" found is not moved.
+
+ UNIX: Hard/Symlinks are not followed
+ Windows: Symlinks ar not followed
+ 
+ HASH: MD5 ord SHA1
+ FULL or HASH-DEPTH = multiple of 4096.
+
+Parameters are::
+
+
+
+
+
+ Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*' New_Path 100
+ Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*.pas' New_Path 100
+ Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH . * New_Path 100
 
 
 
