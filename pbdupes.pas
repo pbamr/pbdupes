@@ -68,7 +68,7 @@
 {$Packrecords 1}
 {$H+} //{$longstrings on}
 	
-{$define LINKS}					//UNIX and Windows. All OS = Support Links. I hope?
+{$define SYMLINKS}					//UNIX and Windows. All OS = Support Links. I hope?
 	
 	
 	
@@ -226,7 +226,7 @@ Var
 	
 	
 Begin
-	{$ifdef LINKS}
+	{$ifdef SYMLINKS}
 	If SysUtils.FindFirst(PATH + PathDelim + '*', SysUtils.FaAnyFile and not SysUtils.FaSymlink, INFO) <> 0 Then exit(-1);
 	{$else}
 		If SysUtils.FindFirst(PATH + PathDelim + '*', SysUtils.FaAnyFile, INFO) <> 0 Then exit(-1);
