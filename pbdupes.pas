@@ -686,7 +686,7 @@ begin
 	writeln('Parameter                 : -MOVE-FULL-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <MIN. FILE SIZE>');
 	writeln('Parameter                 : -MOVE-FAST-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH> <MIN. FILE_SIZE>');
 	writeln;
-	writeln('Parameter                 : -SHOW-FULL-SHA1-HASH <PATH> <EXTENSION>. Only Show, no action');
+	writeln('Parameter                 : -SHOW-FULL-SHA1-HASH <PATH> <EXTENSION> <MIN. FILE SIZE>. Only Show, no action');
 	writeln('Parameter                 : -SHOW-FAST-SHA1-HASH <PATH> <EXTENSION> <HASH-DEPTH> <MIN. FILE SIZE>. Only Show, no action');
 	writeln;
 	writeln('Parameter                 : -MOVE-FULL-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <MIN. FILE SIZE>');
