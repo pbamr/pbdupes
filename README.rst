@@ -16,7 +16,9 @@ Features are::
  Windows: Symlinks ar not followed
  
  HASH: MD5 ord SHA1
- FULL or HASH-DEPTH = multiple of 4096.
+ FULL or HASH-DEPTH = multiple of 4096
+ MIN-FILE_SIZE      = 0
+
 
  The filname in the New folder is changed in "Old-Path + File-Name"
 

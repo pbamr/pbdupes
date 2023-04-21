@@ -42,7 +42,8 @@
   The first identical existing "FILE" found is not moved.
   UNIX: Hard/Symlink are not FOLLOWED!!
 
-  HASH-DEPTH = multiple of 4096.
+  HASH-DEPTH     = multiple of 4096.
+  MIN-FILE_SIZE  = 0
 
   Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*' Dup_Path 100
   Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*.pas' Dup_Path 100
@@ -115,7 +116,8 @@ type
 		
 		
 		Function GetFilesDir(PATH			: ansistring;
-				     EXTENSIONS	: ansistring)	: int64;
+				     EXTENSIONS			: ansistring;
+				     MIN_FILE_SIZE		: qword) : int64;
 		
 		Procedure SetArrayLen(Elements : int64);
 		Procedure ArrayFree;
@@ -220,7 +222,8 @@ end;
 	
 	
 Function TpFilesDup.GetFilesDir(PATH		: ansistring;
-				EXTENSIONS	: ansistring) : int64;
+				EXTENSIONS	: ansistring;
+				MIN_FILE_SIZE	: qword) : int64;
 	
 Var
 	INFO	: TSearchRec;
@@ -248,7 +251,7 @@ Begin
 			{$endif}
 			
 			
-			GetFilesDir(PATH + PathDelim + Info.Name, EXTENSIONS);
+			GetFilesDir(PATH + PathDelim + Info.Name, EXTENSIONS, MIN_FILE_SIZE);
 			continue;
 		end;
 		
@@ -257,7 +260,7 @@ Begin
 		if fpreadlink(PATH + PathDelim + Info.Name) <> '' then continue;
 		{$endif}
 		
-		if INFO.Size = 0 then continue;
+		if INFO.Size < MIN_FILE_SIZE then continue;
 		
 		//filter
 		if StrUtils.IsWild(INFO.NAME, EXTENSIONS, true) = true then begin
@@ -677,19 +680,20 @@ begin
 	writeln;
 	writeln('                            Special Thanks Niklaus Wirth');
 	writeln;
-	writeln('Parameter                 : -SHOW-FULL-MD5-HASH <PATH> <EXTENSION>. Only Show, no action.');
-	writeln('Parameter                 : -SHOW-FAST-MD5-HASH <PATH> <EXTENSION> <HASH-DEPTH>. Only Show, no action.');
+	writeln('Parameter                 : -SHOW-FULL-MD5-HASH <PATH> <EXTENSION> <MIN. FILE SIZE>. Only Show, no action');
+	writeln('Parameter                 : -SHOW-FAST-MD5-HASH <PATH> <EXTENSION> <HASH-DEPTH> <MIN. FILE SIZE>. Only Show, no action');
 	writeln;
-	writeln('Parameter                 : -MOVE-FULL-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP>.');
-	writeln('Parameter                 : -MOVE-FAST-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH>.');
+	writeln('Parameter                 : -MOVE-FULL-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <MIN. FILE SIZE>');
+	writeln('Parameter                 : -MOVE-FAST-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH> <MIN. FILE_SIZE>');
 	writeln;
-	writeln('Parameter                 : -SHOW-FULL-SHA1-HASH <PATH> <EXTENSION>. Only Show, no action.');
-	writeln('Parameter                 : -SHOW-FAST-SHA1-HASH <PATH> <EXTENSION> <HASH-DEPTH>. Only Show, no action.');
+	writeln('Parameter                 : -SHOW-FULL-SHA1-HASH <PATH> <EXTENSION>. Only Show, no action');
+	writeln('Parameter                 : -SHOW-FAST-SHA1-HASH <PATH> <EXTENSION> <HASH-DEPTH> <MIN. FILE SIZE>. Only Show, no action');
 	writeln;
-	writeln('Parameter                 : -MOVE-FULL-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP>.');
-	writeln('Parameter                 : -MOVE-FAST-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH>.');
+	writeln('Parameter                 : -MOVE-FULL-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <MIN. FILE SIZE>');
+	writeln('Parameter                 : -MOVE-FAST-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH> <MIN. FILE SIZE>');
 	writeln;
-	writeln('                            HASH-DEPTH: multiple of 4096.');
+	writeln('                            HASH-DEPTH    : multiple of 4096');
+	writeln('                            MIN-FILE-SIZE : 0');
 	writeln;
 	writeln('                            UNIX      : LINKS are not FOLLOWED!');
 	writeln('                            Windows   : SymLINKS are not FOLLOWED!');
@@ -701,7 +705,7 @@ begin
 	writeln;
 	writeln;
 	writeln('Parameter -MOVE-...       : "MOVE" ONLY, NOT DELETE.');
-	writeln('                            The first identical existing "FILE" found is not moved.');
+	writeln('                            The first identical existing "FILE" found is not moved');
 	writeln;
 	writeln('Parameter -SHOW-...       : Display all programs with the same "HASH"');
 	writeln;
@@ -723,6 +727,7 @@ Procedure SHOW_FULL_MD5_HASH;
 var
 	PATH		: ansistring;
 	EXTENSION	: ansistring;
+	MIN_FILE_SIZE	: qword;
 	
 	n		: int64;
 	
@@ -734,15 +739,17 @@ var
 	
 	
 begin
-	if ParamCount <> 3 then ErrorMessage;
+	if ParamCount <> 4 then ErrorMessage;
 	
 	PATH := ParamStr(2);
 	EXTENSiON := ParamStr(3);
 	
 	pFilesFound := TpFilesDup.Create;
 	
+	if TryStrToQword(ParamStr(4), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
@@ -791,6 +798,7 @@ var
 	PATH		: ansistring;
 	EXTENSION	: ansistring;
 	HASH_DEPTH	: qword;
+	MIN_FILE_SIZE	: qword;
 	
 	pFilesFound	: TpFilesDUP;
 	
@@ -802,7 +810,7 @@ var
 	
 	
 begin
-	if ParamCount <> 4 then ErrorMessage;
+	if ParamCount <> 5 then ErrorMessage;
 	
 	PATH := ParamStr(2);
 	EXTENSiON := ParamStr(3);
@@ -812,13 +820,15 @@ begin
 	if HASH_DEPTH > 10000000 then ErrorMessage
 	else HASH_DEPTH :=  HASH_DEPTH * 4096;
 	
+	if TryStrToQword(ParamStr(5), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound := TpFilesDup.Create;
 	
 	//test: strict private
 	//FilesFound.A[0].HASH := 'aaaaaaaaa';
 	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	
@@ -868,6 +878,7 @@ var
 	PATH_DEST	: ansistring;
 	EXTENSION	: ansistring;
 	HASH_DEPTH	: qword;
+	MIN_FILE_SIZE	: qword;
 	
 	pFilesFound	: TpFilesDup;
 	
@@ -881,7 +892,7 @@ var
 	
 	
 begin
-	if ParamCount <> 5 then ErrorMessage;
+	if ParamCount <> 6 then ErrorMessage;
 	
 	PATH		:= ParamStr(2);
 	EXTENSiON	:= ParamStr(3);
@@ -892,10 +903,12 @@ begin
 	if HASH_DEPTH > 10000000 then ErrorMessage
 	else HASH_DEPTH :=  HASH_DEPTH * 4096;
 	
+	if TryStrToQword(ParamStr(6), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound := TpFilesDup.Create;
 	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
@@ -955,6 +968,7 @@ var
 	PATH		: ansistring;
 	PATH_DEST	: ansistring;
 	EXTENSION	: ansistring;
+	MIN_FILE_SIZE	: qword;
 	
 	pFilesFound	: TpFilesDup;
 	
@@ -968,7 +982,7 @@ var
 	
 	
 begin
-	if ParamCount <> 4 then ErrorMessage;
+	if ParamCount <> 5 then ErrorMessage;
 	
 	PATH		:= ParamStr(2);
 	EXTENSiON	:= ParamStr(3);
@@ -976,8 +990,10 @@ begin
 	
 	pFilesFound := TpFilesDup.Create;
 	
+	if TryStrToQword(ParamStr(5), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
@@ -1036,6 +1052,7 @@ Procedure SHOW_FULL_SHA1_HASH;
 var
 	PATH		: ansistring;
 	EXTENSION	: ansistring;
+	MIN_FILE_SIZE	: qword;
 	
 	n		: int64;
 	
@@ -1047,15 +1064,17 @@ var
 	
 	
 begin
-	if ParamCount <> 3 then ErrorMessage;
+	if ParamCount <> 4 then ErrorMessage;
 	
 	PATH := ParamStr(2);
 	EXTENSiON := ParamStr(3);
 	
 	pFilesFound := TpFilesDup.Create;
 	
+	if TryStrToQword(ParamStr(4), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
@@ -1103,6 +1122,7 @@ var
 	PATH		: ansistring;
 	EXTENSION	: ansistring;
 	HASH_DEPTH	: qword;
+	MIN_FILE_SIZE	: qword;
 	
 	pFilesFound	: TpFilesDUP;
 	
@@ -1114,7 +1134,7 @@ var
 	
 	
 begin
-	if ParamCount <> 4 then ErrorMessage;
+	if ParamCount <> 5 then ErrorMessage;
 	
 	PATH := ParamStr(2);
 	EXTENSiON := ParamStr(3);
@@ -1124,13 +1144,15 @@ begin
 	if HASH_DEPTH > 10000000 then ErrorMessage
 	else HASH_DEPTH :=  HASH_DEPTH * 4096;
 	
+	if TryStrToQword(ParamStr(5), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound := TpFilesDup.Create;
 	
 	//test: strict private
 	//FilesFound.A[0].HASH := 'aaaaaaaaa';
 	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
@@ -1179,6 +1201,7 @@ var
 	PATH_DEST	: ansistring;
 	EXTENSION	: ansistring;
 	HASH_DEPTH	: qword;
+	MIN_FILE_SIZE	: qword;
 	
 	pFilesFound	: TpFilesDup;
 	
@@ -1192,7 +1215,7 @@ var
 	
 	
 begin
-	if ParamCount <> 5 then ErrorMessage;
+	if ParamCount <> 6 then ErrorMessage;
 	
 	PATH		:= ParamStr(2);
 	EXTENSiON	:= ParamStr(3);
@@ -1203,10 +1226,12 @@ begin
 	if HASH_DEPTH > 10000000 then ErrorMessage
 	else HASH_DEPTH :=  HASH_DEPTH * 4096;
 	
+	if TryStrToQword(ParamStr(6), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound := TpFilesDup.Create;
 	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
@@ -1266,6 +1291,7 @@ var
 	PATH		: ansistring;
 	PATH_DEST	: ansistring;
 	EXTENSION	: ansistring;
+	MIN_FILE_SIZE	: qword;
 	
 	pFilesFound	: TpFilesDup;
 	
@@ -1279,16 +1305,18 @@ var
 	
 	
 begin
-	if ParamCount <> 4 then ErrorMessage;
+	if ParamCount <> 5 then ErrorMessage;
 	
 	PATH		:= ParamStr(2);
 	EXTENSiON	:= ParamStr(3);
 	PATH_DEST	:= ParamStr(4);
 	
+	if TryStrToQword(ParamStr(5), MIN_FILE_SIZE) = FALSE then ErrorMessage;
+	
 	pFilesFound := TpFilesDup.Create;
 	
 	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION) = -1 then begin pFilesFound.SetArrayLen(0); pFilesFound.Free; ErrorMessage; end;
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.SetArrayLen(0); pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
