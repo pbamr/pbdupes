@@ -27,27 +27,27 @@ Features are::
 
 Parameters are::
 
- pbdupes -SHOW-FULL-MD5-HASH <PATH> <EXTENSION>. Only Show, no action.
- pbdupes -SHOW-FAST-MD5-HASH <PATH> <EXTENSION> <HASH-DEPTH>. Only Show, no action.
+ pbdupes -SHOW-FULL-MD5-HASH <PATH> <EXTENSION> <MIN-FILE-SIZE>. Only Show, no action.
+ pbdupes -SHOW-FAST-MD5-HASH <PATH> <EXTENSION> <HASH-DEPTH> <MIN-FILE-SIZE>. Only Show, no action.
 	
- pbdupes -MOVE-FULL-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP>.
- pbdupes -MOVE-FAST-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH>.
+ pbdupes -MOVE-FULL-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <MIN-FILE-SIZE>.
+ pbdupes -MOVE-FAST-MD5-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH> <MIN-FILE-SIZE>.
 	
- pbdupes -SHOW-FULL-SHA1-HASH <PATH> <EXTENSION>. Only Show, no action.
- pbdupes -SHOW-FAST-SHA1-HASH <PATH> <EXTENSION> <HASH-DEPTH>. Only Show, no action.
+ pbdupes -SHOW-FULL-SHA1-HASH <PATH> <EXTENSION> <MIN-FILE-SIZE>. Only Show, no action.
+ pbdupes -SHOW-FAST-SHA1-HASH <PATH> <EXTENSION> <HASH-DEPTH> <MIN-FILE-SIZE>. Only Show, no action.
 	
- pbdupes -MOVE-FULL-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP>.
- pbdupes -MOVE-FAST-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH>.
+ pbdupes -MOVE-FULL-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <MIN-FILE-SIZE>.
+ pbdupes -MOVE-FAST-SHA1-HASH <PATH> <EXTENSION> <DESTINATION DUP> <HASH-DEPTH> <MIN-FILE-SIZE>.
 	
 --------
 
 Example::
 
- Example Linux           :  pbdupes -MOVE-FAST-SHA1-HASH '.' '*' DUP_Path 100
- Example Linux           :  pbdupes -SHOW-FAST-MD5-HASH '.' '*.pas' 100 >dup_list
+ Example Linux           :  pbdupes -MOVE-FAST-SHA1-HASH '.' '*' DUP_Path 100 0
+ Example Linux           :  pbdupes -SHOW-FAST-MD5-HASH '.' '*.pas' 100 100000 >dup_list
  
- Example Windows or other:  pbdupes -MOVE-FAST-SHA1-HASH . * 100 >dup_list
- Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH "c:\Program Files" * DUP_Path 100
+ Example Windows or other:  pbdupes -MOVE-FAST-SHA1-HASH . * 100 0 >dup_list
+ Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH "c:\Program Files" * DUP_Path 100 999
 
 --------
 

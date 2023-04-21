@@ -45,9 +45,9 @@
   HASH-DEPTH     = multiple of 4096.
   MIN-FILE_SIZE  = 0
 
-  Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*' Dup_Path 100
-  Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*.pas' Dup_Path 100
-  Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH . * Dup_Path 100
+  Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*' Dup_Path 100 0
+  Example Linux           :  pbdupes -MOVE-FAST-MD5-HASH '.' '*.pas' Dup_Path 100 100
+  Example Windows or other:  pbdupes -MOVE-FAST-MD5-HASH . * Dup_Path 100 111
 
 
   The filname is changed in "Old-Path + File-Name"
@@ -698,10 +698,10 @@ begin
 	writeln('                            UNIX      : LINKS are not FOLLOWED!');
 	writeln('                            Windows   : SymLINKS are not FOLLOWED!');
 	writeln;
-	writeln('Example Linux             : pbdupes -MOVE-FAST-MD5-HASH ''.'' ''*'' Dup_Path 100');
+	writeln('Example Linux             : pbdupes -MOVE-FAST-MD5-HASH ''.'' ''*'' Dup_Path 100 0');
 	writeln;
-	writeln('Example Windows or other  : pbdupes -MOVE-FAST-MD5-HASH . * Dup_Path 100');
-	writeln('Example Windows or other  : pbdupes -MOVE-FAST-MD5-HASH "c\Program Files" * Dup_Path 100');
+	writeln('Example Windows or other  : pbdupes -MOVE-FAST-MD5-HASH . * Dup_Path 100 10000');
+	writeln('Example Windows or other  : pbdupes -MOVE-FAST-MD5-HASH "c\Program Files" * Dup_Path 100 0');
 	writeln;
 	writeln;
 	writeln('Parameter -MOVE-...       : "MOVE" ONLY, NOT DELETE.');
