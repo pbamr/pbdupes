@@ -294,7 +294,7 @@ var
 	
 	
 begin
-	for n := 0 to length(A) - 1  do begin
+	for n := low(A) to high(A)  do begin
 		Dispose(A[n]);
 	end;
 	
@@ -312,11 +312,11 @@ var
 	
 	
 begin
-	for n := 0 to length(A) - 1  do begin
+	for n := low(A) to high(A) do begin
 		Dispose(A[n]);
 	end;
 	
-	for n := 0 to length(B) - 1  do begin
+	for n := low(B) to high(B) do begin
 		Dispose(B[n]);
 	end;
 	
@@ -523,7 +523,7 @@ var
 	
 	
 begin
-	for n := 0 to length(A) - 1 do begin 
+	for n := low(A) to high(A) do begin 
 		if A[n]^.LENGTH < HASH_DEPTH then begin 
 			A[n]^.HASH := MD5Print(MD5File(A[n]^.NAME));
 			writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
@@ -550,7 +550,7 @@ var
 	
 begin
 	//Hash?
-	for n := 0 to length(A) - 1 do begin 
+	for n := low(A)to high(A) do begin 
 		A[n]^.HASH := MD5Print(MD5File(A[n]^.NAME));
 		writeln(A[n]^.HASH, '   ', A[n]^.LENGTH:18, '    ', A[n]^.NAME);
 	end;
@@ -620,7 +620,7 @@ var
 	
 begin
 	//Hash?
-	for n := 0 to length(A) - 1 do begin 
+	for n := low(A) to high(A) do begin 
 		try
 			A[n]^.HASH := SHA1Print(SHA1File(A[n]^.NAME));
 			writeln(A[n]^.HASH, '   ', A[n]^.LENGTH:18, '    ', A[n]^.NAME);
@@ -643,7 +643,7 @@ var
 	
 	
 begin
-	for n := 0 to length(A) - 1 do begin 
+	for n := low(A) to high(A) do begin 
 		if A[n]^.LENGTH < HASH_DEPTH then begin 
 			try
 				A[n]^.HASH := SHA1Print(SHA1File(A[n]^.NAME));
