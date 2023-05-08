@@ -40,7 +40,9 @@
 
   Parameter "MOVE-..."  = MOVE ONLY, NOT DELETE.
   The first identical existing "FILE" found is not moved.
-  UNIX: Hard/Symlink are not FOLLOWED!!
+  UNIX   : Hard/Symlink are not FOLLOWED!!
+  WINDOWS: Symlink are not FOLLOWED!!
+
 
   HASH-DEPTH     = multiple of 4096.
   MIN-FILE_SIZE  = 0
@@ -104,28 +106,28 @@ type
 		var
 			A : array of ^FILES_FOUND;
 			B : array of ^FILES_FOUND;
-			
-			
-			
+		
+		
+		
 		public
-		Function FileRead(FILE_str	: ansistring;
-			 var Buffer		: ansistring) : int64;
-			
+		Function FileRead(FILE_str		: ansistring;
+				  var Buffer		: ansistring) : int64;
+		
 		Function CopyFile(SOURCE_str		: ansistring;
 				  DESTINATION_str	: ansistring) : int64;
 		
 		
-		Function GetFilesDir(PATH			: ansistring;
-				     EXTENSIONS			: ansistring;
-				     MIN_FILE_SIZE		: qword) : int64;
+		Function GetFilesDir(PATH		: ansistring;
+				     EXTENSIONS		: ansistring;
+				     MIN_FILE_SIZE	: qword) : int64;
 		
-		Procedure SetArrayLen(Elements : int64);
-		Procedure ArrayFree;
+		Procedure SetListLen(Elements : int64);
+		Procedure ListFree;
 		Procedure AddElement;
 		Function GetFileName(Nr : int64) : ansistring;
 		Function GetFileLength(Nr : int64) : int64;
 		Function GetFileHash(Nr : int64) : ansistring;
-		Function GetArrayLen : int64;
+		Function GetListLen : int64;
 		Procedure QuickSortFileLength;
 		Procedure QuickSortFileHash;
 		Procedure DupFilesFindLength;
@@ -287,7 +289,7 @@ end;
 	
 	
 	
-Procedure TpFilesDup.SetArrayLen(Elements : int64);
+Procedure TpFilesDup.SetListLen(Elements : int64);
 var
 	n : int64;
 	
@@ -305,7 +307,7 @@ end;
 	
 	
 	
-Procedure TpFilesDup.ArrayFree;
+Procedure TpFilesDup.ListFree;
 var
 	n : int64;
 	
@@ -374,7 +376,7 @@ end;
 	
 	
 	
-Function TpFilesDup.GetArrayLen : int64;
+Function TpFilesDup.GetListLen : int64;
 begin
 	exit(length(A));
 end;
@@ -486,7 +488,7 @@ begin
 	end;
 	setlength(B, 0);
 	
-	for n0 := 0 to length(A) - 1 do begin 
+	for n0 := 0 to high(A) do begin 
 		if A[n0]^.DUP = TRUE then begin
 			len := length(B);
 			setlength(B, len + 1);
@@ -580,12 +582,12 @@ begin
 	end;
 	
 	
-	for n0 := 0 to length(B) - 1  do begin
+	for n0 := 0 to high(B)  do begin
 		Dispose(B[n0]);
 	end;
 	setlength(B, 0);
 	
-	for n0 := 0 to length(A) - 1 do begin 
+	for n0 := 0 to high(A) do begin 
 		if A[n0]^.DUP = TRUE then begin
 			len := length(B);
 			setlength(B, len + 1);
@@ -678,7 +680,8 @@ begin
 	writeln('FreePascal Project        : www.freepascal.org');
 	writeln('Packages, runtime library : modified LGPL, www.gnu.org');
 	writeln;
-	writeln('                            Special Thanks Niklaus Wirth');
+	writeln('Special Thanks            : Niklaus Wirth');
+	writeln('                            Florian Klaempfl and others');
 	writeln;
 	writeln('Parameter                 : -SHOW-FULL-MD5-HASH <PATH> <EXTENSION> <MIN. FILE SIZE>. Only Show, no action');
 	writeln('Parameter                 : -SHOW-FAST-MD5-HASH <PATH> <EXTENSION> <HASH-DEPTH> <MIN. FILE SIZE>. Only Show, no action');
@@ -748,13 +751,13 @@ begin
 	
 	if TryStrToQword(ParamStr(4), MIN_FILE_SIZE) = FALSE then ErrorMessage;
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -768,7 +771,7 @@ begin
 	writeln;
 	
 	Counter := 0;
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin 
+	for n := 0 to pFilesFound.GetListLen - 1 do begin 
 		writeln(pFilesFound.GetFileHash(n), '   ', pFilesFound.GetFileLength(n):18, '    ', pFilesFound.GetFileName(n));
 		inc(COUNTER);
 		STORAGE_SPACE := STORAGE_SPACE + pFilesFound.GetFileLength(n);
@@ -781,7 +784,7 @@ begin
 	writeln('STORAGE      : FREE SPACE : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -827,14 +830,14 @@ begin
 	//test: strict private
 	//FilesFound.A[0].HASH := 'aaaaaaaaa';
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -848,7 +851,7 @@ begin
 	
 	Counter := 0;
 	
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin 
+	for n := 0 to pFilesFound.GetListLen - 1 do begin 
 		writeln(pFilesFound.GetFileHash(n), '   ', pFilesFound.GetFileLength(n):18, '    ', pFilesFound.GetFileName(n));
 		inc(COUNTER);
 		STORAGE_SPACE := STORAGE_SPACE + pFilesFound.GetFileLength(n);
@@ -861,7 +864,7 @@ begin
 	writeln('STORAGE    : FREE SPACE  : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -907,13 +910,13 @@ begin
 	
 	pFilesFound := TpFilesDup.Create;
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -926,7 +929,7 @@ begin
 	writeln;
 	Counter := 0;
 	
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin
+	for n := 0 to pFilesFound.GetListLen - 1 do begin
 		ansistring_0 := pFilesFound.GetFileName(n);
 		if ansistring_0[1] = '.' then Delete(ansistring_0, 1, 1);
 		ansistring_0 := StringReplace(ansistring_0, PathDelim, '::', [rfReplaceAll]);
@@ -952,7 +955,7 @@ begin
 	writeln('STORAGE     : FREE SPACE  : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -992,13 +995,13 @@ begin
 	
 	if TryStrToQword(ParamStr(5), MIN_FILE_SIZE) = FALSE then ErrorMessage;
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -1011,7 +1014,7 @@ begin
 	writeln;
 	
 	Counter := 0;
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin
+	for n := 0 to pFilesFound.GetListLen - 1 do begin
 		ansistring_0 := pFilesFound.GetFileName(n);
 		if ansistring_0[1] = '.' then Delete(ansistring_0, 1, 1);
 		ansistring_0 := StringReplace(ansistring_0, PathDelim, '::', [rfReplaceAll]);
@@ -1037,7 +1040,7 @@ begin
 	writeln('STORAGE     : FREE SPACE  : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -1073,13 +1076,13 @@ begin
 	
 	if TryStrToQword(ParamStr(4), MIN_FILE_SIZE) = FALSE then ErrorMessage;
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -1092,7 +1095,7 @@ begin
 	writeln;
 	
 	Counter := 0;
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin 
+	for n := 0 to pFilesFound.GetListLen - 1 do begin 
 		writeln(pFilesFound.GetFileHash(n), '   ', pFilesFound.GetFileLength(n):18, '    ', pFilesFound.GetFileName(n));
 		inc(COUNTER);
 		STORAGE_SPACE := STORAGE_SPACE + pFilesFound.GetFileLength(n);
@@ -1105,7 +1108,7 @@ begin
 	writeln('STORAGE     : FREE SPACE : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -1151,13 +1154,13 @@ begin
 	//test: strict private
 	//FilesFound.A[0].HASH := 'aaaaaaaaa';
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -1171,7 +1174,7 @@ begin
 	
 	Counter := 0;
 	
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin 
+	for n := 0 to pFilesFound.GetListLen - 1 do begin 
 		writeln(pFilesFound.GetFileHash(n), '   ', pFilesFound.GetFileLength(n):18, '    ', pFilesFound.GetFileName(n));
 		inc(COUNTER);
 		STORAGE_SPACE := STORAGE_SPACE + pFilesFound.GetFileLength(n);
@@ -1184,7 +1187,7 @@ begin
 	writeln('STORAGE    : FREE SPACE  : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -1230,13 +1233,13 @@ begin
 	
 	pFilesFound := TpFilesDup.Create;
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ArrayFree; pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.ListFree; pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -1249,7 +1252,7 @@ begin
 	writeln;
 	Counter := 0;
 	
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin
+	for n := 0 to pFilesFound.GetListLen - 1 do begin
 		ansistring_0 := pFilesFound.GetFileName(n);
 		if ansistring_0[1] = '.' then Delete(ansistring_0, 1, 1);
 		ansistring_0 := StringReplace(ansistring_0, PathDelim, '::', [rfReplaceAll]);
@@ -1275,7 +1278,7 @@ begin
 	writeln('STORAGE     : FREE SPACE  : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -1315,13 +1318,13 @@ begin
 	
 	pFilesFound := TpFilesDup.Create;
 	
-	pFilesFound.SetArrayLen(0);
-	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.SetArrayLen(0); pFilesFound.Free; ErrorMessage; end;
+	pFilesFound.SetListLen(0);
+	if pFilesFound.GetFilesDir (PATH, EXTENSION, MIN_FILE_SIZE) = -1 then begin pFilesFound.SetListLen(0); pFilesFound.Free; ErrorMessage; end;
 	pFilesFound.DupFilesFindLength;
 	
 	writeln;
 	writeln('--------------------------------------------------------------------');
-	writeln('FILES: SAME LENGTH: ', pFilesFound.GetArrayLen);
+	writeln('FILES: SAME LENGTH: ', pFilesFound.GetListLen);
 	writeln('HASH : GET');
 	writeln;
 	
@@ -1335,7 +1338,7 @@ begin
 	writeln;
 	
 	Counter := 0;
-	for n := 0 to pFilesFound.GetArrayLen - 1 do begin
+	for n := 0 to pFilesFound.GetListLen - 1 do begin
 		ansistring_0 := pFilesFound.GetFileName(n);
 		if ansistring_0[1] = '.' then Delete(ansistring_0, 1, 1);
 		ansistring_0 := StringReplace(ansistring_0, PathDelim, '::', [rfReplaceAll]);
@@ -1361,7 +1364,7 @@ begin
 	writeln('STORAGE     : FREE SPACE  : ', (STORAGE_SPACE / 1000 / 1000 / 1000):0:4, 'GB'); 
 	writeln;
 	
-	pFilesFound.ArrayFree;
+	pFilesFound.ListFree;
 	pFilesFound.Free;
 	halt(0);
 	
@@ -1371,21 +1374,29 @@ end;
 	
 	
 	
-
+var
+	Param : ansistring;
+	
+	
+	
+	
+	
 //-------------------------------------------------------------------------------------------------------------
 begin
 	
 	if Paramcount < 1 then ErrorMessage;
 	
-	if ParamStr(1) = '-SHOW-FULL-MD5-HASH' then SHOW_FULL_MD5_HASH;
-	if ParamStr(1) = '-SHOW-FAST-MD5-HASH' then SHOW_FAST_MD5_HASH;
-	if ParamStr(1) = '-MOVE-FAST-MD5-HASH' then MOVE_FAST_MD5_HASH;
-	if ParamStr(1) = '-MOVE-FULL-MD5-HASH' then MOVE_FULL_MD5_HASH;
+	Param := UpperCase(ParamStr(1));
 	
-	if ParamStr(1) = '-SHOW-FULL-SHA1-HASH' then SHOW_FULL_SHA1_HASH;
-	if ParamStr(1) = '-SHOW-FAST-SHA1-HASH' then SHOW_FAST_SHA1_HASH;
-	if ParamStr(1) = '-MOVE-FAST-SHA1-HASH' then MOVE_FAST_SHA1_HASH;
-	if ParamStr(1) = '-MOVE-FULL-SHA1-HASH' then MOVE_FULL_SHA1_HASH;
+	if Param = '-SHOW-FULL-MD5-HASH' then SHOW_FULL_MD5_HASH;
+	if Param = '-SHOW-FAST-MD5-HASH' then SHOW_FAST_MD5_HASH;
+	if Param = '-MOVE-FAST-MD5-HASH' then MOVE_FAST_MD5_HASH;
+	if Param = '-MOVE-FULL-MD5-HASH' then MOVE_FULL_MD5_HASH;
+	
+	if Param = '-SHOW-FULL-SHA1-HASH' then SHOW_FULL_SHA1_HASH;
+	if Param = '-SHOW-FAST-SHA1-HASH' then SHOW_FAST_SHA1_HASH;
+	if Param = '-MOVE-FAST-SHA1-HASH' then MOVE_FAST_SHA1_HASH;
+	if Param = '-MOVE-FULL-SHA1-HASH' then MOVE_FULL_SHA1_HASH;
 	
 	
 	ErrorMessage;
