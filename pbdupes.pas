@@ -131,11 +131,11 @@ type
 		Procedure QuickSortFileLength;
 		Procedure QuickSortFileHash;
 		Procedure DupFilesFindLength;
-		Procedure CalcFastMD5Hash(HASH_DEPTH : int64);
-		Procedure CalcFullMD5Hash;
+		Procedure CalcFastMD5Hash(HASH_DEPTH : int64; display : boolean );
+		Procedure CalcFullMD5Hash(display : boolean);
 		Procedure DupFilesFindHash(FLAG : boolean);
-		Procedure CalcFullSHA1Hash;
-		Procedure CalcFastSHA1Hash(HASH_DEPTH : int64);
+		Procedure CalcFullSHA1Hash(display : boolean);
+		Procedure CalcFastSHA1Hash(HASH_DEPTH : int64; display : boolean);
 	end;
 	
 	
@@ -517,7 +517,7 @@ end;
 	
 	
 	
-Procedure TpFilesDup.CalcFastMD5Hash(HASH_DEPTH : int64);
+Procedure TpFilesDup.CalcFastMD5Hash(HASH_DEPTH : int64; display : boolean);
 var
 	n		: int64;
 	ansistring_0	: ansistring;
@@ -528,13 +528,13 @@ begin
 	for n := low(A) to high(A) do begin 
 		if A[n]^.LENGTH < HASH_DEPTH then begin 
 			A[n]^.HASH := MD5Print(MD5File(A[n]^.NAME));
-			writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
+			if display = TRUE then writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
 		end
 		else begin
 			setlength(ansistring_0, HASH_DEPTH - 100);
 			FileRead(A[n]^.NAME, ansistring_0);
 			A[n]^.HASH := MD5Print(MD5String(ansistring_0));
-			writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
+			if display = TRUE then writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
 		end;
 	end;
 	
@@ -544,7 +544,7 @@ end;
 	
 	
 	
-Procedure TpFilesDup.CalcFullMD5Hash;
+Procedure TpFilesDup.CalcFullMD5Hash(display : boolean);
 var
 	n : int64;
 	
@@ -554,7 +554,7 @@ begin
 	//Hash?
 	for n := low(A)to high(A) do begin 
 		A[n]^.HASH := MD5Print(MD5File(A[n]^.NAME));
-		writeln(A[n]^.HASH, '   ', A[n]^.LENGTH:18, '    ', A[n]^.NAME);
+		if display = TRUE then writeln(A[n]^.HASH, '   ', A[n]^.LENGTH:18, '    ', A[n]^.NAME);
 	end;
 	
 end;
@@ -614,7 +614,7 @@ end;
 	
 	
 	
-Procedure TpFilesDup.CalcFullSHA1Hash;
+Procedure TpFilesDup.CalcFullSHA1Hash(display : boolean);
 var
 	n : int64;
 	
@@ -625,7 +625,7 @@ begin
 	for n := low(A) to high(A) do begin 
 		try
 			A[n]^.HASH := SHA1Print(SHA1File(A[n]^.NAME));
-			writeln(A[n]^.HASH, '   ', A[n]^.LENGTH:18, '    ', A[n]^.NAME);
+			if display = TRUE then writeln(A[n]^.HASH, '   ', A[n]^.LENGTH:18, '    ', A[n]^.NAME);
 		except
 			//do nothing
 		end;
@@ -637,7 +637,7 @@ end;
 	
 	
 	
-Procedure TpFilesDup.CalcFastSHA1Hash(HASH_DEPTH : int64);
+Procedure TpFilesDup.CalcFastSHA1Hash(HASH_DEPTH : int64; display : boolean);
 var
 	n		: int64;
 	ansistring_0	: ansistring;
@@ -649,7 +649,7 @@ begin
 		if A[n]^.LENGTH < HASH_DEPTH then begin 
 			try
 				A[n]^.HASH := SHA1Print(SHA1File(A[n]^.NAME));
-				writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
+				if display = TRUE then writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
 			except
 				//do nothing
 			end;
@@ -659,7 +659,7 @@ begin
 			try
 				FileRead(A[n]^.NAME, ansistring_0);
 				A[n]^.HASH := SHA1Print(SHA1String(ansistring_0));
-				writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
+				if display = TRUE then writeln(A[n]^.HASH, '  ', A[n]^.LENGTH:18,'  ', A[n]^.NAME);
 			except
 				//do nothing
 			end;
@@ -762,7 +762,7 @@ begin
 	writeln;
 	
 	//pFilesFound.CalcFullHash;
-	pFilesFound.CalcFullMD5Hash;
+	pFilesFound.CalcFullMD5Hash(TRUE);
 	pFilesFound.DupFilesFindHash(TRUE);
 	
 	writeln;
@@ -841,7 +841,7 @@ begin
 	writeln('HASH : GET');
 	writeln;
 	
-	pFilesFound.CalcFastMD5Hash(HASH_DEPTH);
+	pFilesFound.CalcFastMD5Hash(HASH_DEPTH, TRUE);
 	pFilesFound.DupFilesFindHash(TRUE);
 	
 	writeln;
@@ -920,7 +920,7 @@ begin
 	writeln('HASH : GET');
 	writeln;
 	
-	pFilesFound.CalcFastMD5Hash(HASH_DEPTH);
+	pFilesFound.CalcFastMD5Hash(HASH_DEPTH, TRUE);
 	pFilesFound.DupFilesFindHash(FALSE);
 	
 	writeln;
@@ -1005,7 +1005,7 @@ begin
 	writeln('HASH : GET');
 	writeln;
 	
-	pFilesFound.CalcFullMD5Hash;
+	pFilesFound.CalcFullMD5Hash(TRUE);
 	pFilesFound.DupFilesFindHash(FALSE);
 	
 	writeln;
@@ -1086,7 +1086,7 @@ begin
 	writeln('HASH : GET');
 	writeln;
 	
-	pFilesFound.CalcFullSHA1Hash;
+	pFilesFound.CalcFullSHA1Hash(TRUE);
 	pFilesFound.DupFilesFindHash(TRUE);
 	
 	writeln;
@@ -1164,7 +1164,7 @@ begin
 	writeln('HASH : GET');
 	writeln;
 	
-	pFilesFound.CalcFastSHA1Hash(HASH_DEPTH);
+	pFilesFound.CalcFastSHA1Hash(HASH_DEPTH, TRUE);
 	pFilesFound.DupFilesFindHash(TRUE);
 	
 	writeln;
@@ -1243,7 +1243,7 @@ begin
 	writeln('HASH : GET');
 	writeln;
 	
-	pFilesFound.CalcFastSHA1Hash(HASH_DEPTH);
+	pFilesFound.CalcFastSHA1Hash(HASH_DEPTH, TRUE);
 	pFilesFound.DupFilesFindHash(FALSE);
 	
 	writeln;
@@ -1329,7 +1329,7 @@ begin
 	writeln;
 	
 	//pFilesFound.CalcFullHash;
-	pFilesFound.CalcFullSHA1Hash;
+	pFilesFound.CalcFullSHA1Hash(TRUE);
 	pFilesFound.DupFilesFindHash(FALSE);
 	
 	writeln;
